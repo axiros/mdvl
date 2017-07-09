@@ -85,7 +85,7 @@ CLI Params of a command.
 subsequent lines of that textblock to the length of that first word.
 
 *That* way you get an easy table-like presentation of lists with keywords,
-which look good also in the source.
+which look good also in the source. See the screenshot of the rendered readme for a visual example.
 
 If you don't need it, switch it off via `no_smart_indent=True`.
 
