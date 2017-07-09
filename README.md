@@ -10,10 +10,14 @@ Dependency free renderer for a subset of markdown to the terminal
 reasonably hassle swift. Ideal for highlighting doc strings or CLI help, where you
 don't want to install markdown libs to do that first - e.g. in new containers.
 
-Also for bash scripts where you repeatedly want to output formatted stuff, e.g.
-in a looop, a very lightweight tool (short startup time for the python process)
-is desirable (Note: There [are](https://github.com/chadbraunduin/markdown.bash)
-bash renderers around, with good results, check them out.
+In no way this is useable as a full markdown document viewer, alone for the
+missing html support.
+
+A real use case are bash scripts, where you repeatedly want to output formatted stuff, e.g. in a loop.
+Then, a very lightweight tool (short startup time for the python process)
+is desirable.
+Note: There [are](https://github.com/chadbraunduin/markdown.bash)
+direct bash renderers around, with good results, check them out.
 They did not work for me for some output related problems but they might for you).
 
 Originally the script was within a Here Document within bash scripts but this
