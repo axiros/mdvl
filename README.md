@@ -1,5 +1,7 @@
 # Light Markdown Renderer
 
+[![Build Status](https://travis-ci.org/axiros/mdvl.svg?branch=master)](https://travis-ci.org/axiros/mdvl)
+
 Dependency free renderer for a subset of markdown to the terminal
 - w/o going via HTML (i.e. no html markup support)
 - parsing in < 100 lines
