@@ -246,6 +246,7 @@ if __name__ == '__main__':
     import sys
     import os
     from stat import S_ISFIFO
+    # allow to adapt $COLUMNS by setting $term_width:
     cols = env('term_width') or os.popen('tput cols').read()
     if S_ISFIFO(os.fstat(0).st_mode): # pipe mode
         md = sys.stdin.read()
@@ -254,6 +255,5 @@ if __name__ == '__main__':
         if os.path.exists(md):
             with open(md) as fd:
                 md = fd.read()
-    # in a pipe colors are not present, allow $cols
     main(md, term_width=cols)
 
