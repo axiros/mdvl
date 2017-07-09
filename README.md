@@ -4,14 +4,15 @@ Dependency free renderer for a subset of markdown to the terminal
 - w/o going via HTML (i.e. no html markup support)
 - parsing in < 100 lines
 
-> This one is intended soleley to hilite somewhat "lightly" structured data
-reasonably fast, ideal for highlighting doc strings or CLI help, where you
-don't want to install markdown libs to do that first.
+> This one is intended soleley to hilite somewhat "lightly" structured text
+reasonably hassle swift. Ideal for highlighting doc strings or CLI help, where you
+don't want to install markdown libs to do that first - e.g. in new containers.
 
 Also for bash scripts where you repeatedly want to output formatted stuff, e.g.
 in a looop, a very lightweight tool (short startup time for the python process)
-is desirable (Note: There are (sed based) bash renderers around, with good results,
-check them out).
+is desirable (Note: There [are](https://github.com/chadbraunduin/markdown.bash)
+bash renderers around, with good results, check them out.
+They did not work for me for some output related problems but they might for you).
 
 Originally the script was within a Here Document within bash scripts but this
 version would be also useable inline in a python programs. Thats why some
@@ -26,7 +27,6 @@ the shell eviron vars, e.g. `C.H1` -> `$H1`
 We stay closer to the source document than a real md renderer would, e.g. we
 keep all linebreaks between two textblocks.
 Intra textblock rendering is working like the standard, i.e. 2 spaces denote a linesep, else we wrap according to available columns.
-
 
 
 ## Usage
