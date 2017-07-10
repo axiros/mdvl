@@ -7,7 +7,7 @@ Dependency free renderer for a subset of markdown to the terminal
 - parsing in < 100 lines
 
 > This one is intended soleley to hilite somewhat "lightly" structured text
-reasonably hassle swift. Ideal for highlighting doc strings or CLI help, where you
+reasonably swift. Ideal for highlighting doc strings or CLI command help, where you
 don't want to install markdown libs to do that first - e.g. in new containers.
 
 In no way this is useable as a full markdown document viewer, alone for the
