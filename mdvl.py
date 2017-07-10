@@ -227,10 +227,9 @@ def _main(md, f):
     out = out.replace(apos + '\n', '') # before
     out = out.replace(apos, '')        # after
     out += C.O # reset
-    if f.no_print:
-        return out
-    else:
+    if not f.no_print:
         print (out)
+    return out
 
 
 def main(md, **kw):
