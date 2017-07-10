@@ -4,7 +4,7 @@
 
 Dependency free renderer for a subset of markdown to the terminal
 - w/o going via HTML (i.e. no html markup support)
-- parsing in < 100 lines
+- sloc (w/o comments) around 100, i.e. adaptable, extendable
 
 > This one is intended soleley to hilite somewhat "lightly" structured text
 reasonably swift. Ideal for highlighting doc strings or CLI command help, where you
@@ -17,14 +17,16 @@ A real use case are bash scripts, where you repeatedly want to output formatted 
 Then, a very lightweight tool (short startup time for the python process)
 is desirable.
 Note: There [are](https://github.com/chadbraunduin/markdown.bash)
-direct bash renderers around, with good results, check them out.
-They did not work for me for some output related problems but they might for you).
+ unix standard tool based renderers around, with good results, check them out
+ (and if only to see how awesome `sed` really is...).
+They did not work for me for some output related problems - but they might for you.
 
 Originally the script was within a Here Document within bash scripts but this
 version would be also useable inline in a python programs. Thats why some
 overhead for config mgmt is present - for a version embedded in e.g. a bash
 script you would only need the main function and replace the `C.<color>` with
 the shell eviron vars, e.g. `C.H1` -> `$H1`
+
 
 
 ## Design
