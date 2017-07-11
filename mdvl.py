@@ -65,6 +65,7 @@ class Facts(Cfg):
     code_mark        = '│'
     light_bg         = False
     no_smart_indent  = False
+    horiz_rule       = '─'
 
     def __init__(f, **kw):
         # first check if the config contains color codes and set to C:
@@ -73,6 +74,8 @@ class Facts(Cfg):
         f.colr = Colors(); f.colr.setup(kw)
 
 # ------------------------------------------------ end config - begin rendering
+h_rules_col = {'-': 'L', '_': 'H3', '*': 'H1'} # different colors
+h_rules = '---', '___', '***'
 def _main(md, f):
     C, cur_colr = f.colr, 'cur_colr'
     cols = int(f.term_width)
@@ -97,6 +100,10 @@ def _main(md, f):
     is_header  = lambda l: l.startswith('#')
     is_list    = lambda l: l.lstrip().startswith('- ')
     is_empty   = lambda l: l.strip() == ''
+    def is_rule(l):
+        if l[:3] in h_rules:
+            ll = len(l)
+            return True if l in (ll * '-', ll * '*', ll * '_') else False
 
     def bq(l):
         'blockquote'
@@ -115,6 +122,10 @@ def _main(md, f):
         line = lines.pop(0)
         if is_empty(line):
             out.append('')
+            continue
+
+        if is_rule(line):
+            out.append(getattr(C, h_rules_col[line[0]])+ (cols * f.horiz_rule))
             continue
 
         # indentd code blocks:
@@ -137,7 +148,8 @@ def _main(md, f):
         # TEXTBLOCKS: Concat lines which must be wrapped:
         bq_lev, line, bqm = bq(line) # blockquote status of that line
 
-        while lines and not line.endswith('  ') and not is_header(line):
+        while ( lines and not line.endswith('  ')
+                      and not is_header(line) ):
 
             nl, l0 = lines[0], line.lstrip() # next line, this line
             bqnl = bq(nl) # bq status of next line
@@ -161,8 +173,12 @@ def _main(md, f):
                     ssi = len(l0) - len(l1.lstrip()) - 2
                 if l0.startswith('**') and not f.no_smart_indent:
                     ssi -= 2
-            if ( not is_header(nl) and not is_list(nl) and
-                not is_empty(nl) and not nl[0] in ('*', '\x02') ):
+            if (     not is_header(nl)
+                 and not is_list(nl)
+                 and not is_empty(nl)
+                 and not nl[0] in ('*', '\x02')
+                 and not is_rule(nl)
+                 ):
                 line = line.rstrip() + ' ' + lines.pop(0).lstrip()
             else:
                 # line is now one wrapable textblock

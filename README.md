@@ -109,4 +109,9 @@ want Python 2:
 100 loops, best of 3: 10.6 msec per loop
 ```
 
+****
+____
+----
+
+Thats all - and demonstrates the horizontal rule ;-)
 

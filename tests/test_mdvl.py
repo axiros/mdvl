@@ -34,6 +34,8 @@ class M(unittest.TestCase):
         print(md.replace(' ', '.'))
         mdr, f = mdvl.main(md, no_print=True)
         print(mdr)
+        if inspect:
+            return
         fn = pth + '/tests/results/' + testcase
         if record:
             print ('recording %s' % testcase)
@@ -74,6 +76,18 @@ class M(unittest.TestCase):
         *foobar* baz
         '''.replace('L', 'asdf ' * 20)
         , 'test_list_table')
+
+    def test_horiz_rules(s):
+        s.c( '''
+        # H1
+        ----
+        foo
+        ****
+        bar
+        ___
+        baz
+        '''
+        , 'test_horiz_rules')
 
 
 
