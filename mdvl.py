@@ -257,12 +257,16 @@ def main(md, **kw):
         print (md) # clear text
         print ('md error: %s %s ' % (f.colr.CODE, ex))
 
+def render(md, cols, **kw):
+    kw['term_width'] = cols
+    return main(md, **kw)[0]
+
 if __name__ == '__main__':
     import sys
     import os
     from stat import S_ISFIFO
     # allow to adapt $COLUMNS by setting $term_width:
-    cols = env('term_width') or os.popen('tput cols').read()
+    cols = env('term_width') or os.popen('tput cols').read().strip()
     if S_ISFIFO(os.fstat(0).st_mode): # pipe mode
         md = sys.stdin.read()
     else:
