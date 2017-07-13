@@ -6,7 +6,10 @@ import re, os
 __author__ = "Gunther Klessinger"
 __version__ = "2017.07.15"
 
-env = os.environ.get
+def env(k, d=None):
+    res = os.environ.get(k, d)
+    return True if res == 'True' else False if res == 'False' else res
+
 # ----------------------------------------------------------------- Config Mgmt
 class Cfg:
     '''
@@ -77,6 +80,7 @@ class Facts(Cfg):
     indent           = 1
     rindent          = 0
     width            = 0 # if set > 0 we set rindent accordingly
+    header_numbering = 10 # -1: off, min number of lines to do autonumbering
 
 
     def __init__(f, md, **kw):
@@ -134,6 +138,7 @@ def _main(md, f):
     blocks = len(g)
     for i in range(blocks):
         md = md.replace(g[i], '\x02%s' % i)
+
     g['max_bq_depth'] = 0
 
     # Tools:
@@ -148,9 +153,16 @@ def _main(md, f):
 
     # LINESPROCESSOR:
     lines, out = md.splitlines(), []
+
+    g['header_numbering'] = False
+    if f.header_numbering > -1 and len(lines) > f.header_numbering:
+        g['header_numbering'] = True
+        g['header_level'] = {} # storing the current header numberings
+
     # remove boundary effects:
     lines.insert(0, '')
     lines.append('')
+
     while lines:
 
         line = lines.pop(0)
@@ -233,7 +245,14 @@ def _main(md, f):
 
         if is_header(line):
             h, line = line.split(' ', 1)
-            g[cur_colr] = C.H(len(h))
+            level = len(h)
+            if g['header_numbering']:
+                hl = g['header_level']
+                hl[level] = hl.get(level, 0) + 1
+                [set(hl, i, 0) for i in hl if i > level]
+                nr = '.'.join([str(hl[ll]) for ll in range(1, level + 1)])
+                line = nr + ' ' + line
+            g[cur_colr] = C.H(level)
 
         # WRAP:
         if len(line) > cols:

@@ -68,22 +68,21 @@ If you absolutely feel better with 10 files instead of one then do:
 
 
 
-# Configuration
-
-Check attributes of classes [`Facts`][1] and [`Colors`][2].
-Those you can deliver as kw args or via environ. e.g.:
-
-```
-set -a; H1=171; H2=54; term_width=50; set +a; ./mdvl.py README.md
-```
-
-
-# Features
+# Configuration / Features
 
 Restricted set of md. This readme pretty much has them all in.
 
 This is how the default output looks with default config.
 ![](./img/default.png)
+
+Check attributes of classes [`Facts`][1] and [`Colors`][2].
+Those you can deliver as kw args or via environ. e.g.:
+
+```
+set -a; H1=171; H2=54; term_width=50; header_numbering=-1; set +a
+./mdvl.py README.md
+```
+
 
 Additionally worth mentioning
 
@@ -94,7 +93,12 @@ Additionally worth mentioning
     fenced code - or indented code
     w/o syntax highlighting though
 
+
 ## Questionable Features ;-)
+
+*Header Auto Numbering* Set this parameter to a min. number of lines of
+markdown sources (-1 to switch feature off). When source document has more
+lines than this we'll autonumber the headers.
 
 *Light "Tables"* This one is non standard - but somewhat handy for documenting e.g.
 CLI Params of a command:
@@ -121,7 +125,6 @@ doc and function doc. ![](./img/indent.png)
 Known and severe one is the problem of solicitated star characters. We
 currently can't detect them, the renderer assumes it is the beginning of an
 italic format and resets only at the next textblock :-(
-
 
 
 
