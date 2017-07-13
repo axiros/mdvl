@@ -3,6 +3,8 @@
 from textwrap import fill
 from operator import setitem as set
 import re, os
+__author__ = "Gunther Klessinger"
+__version__ = "2017.07.13"
 
 env = os.environ.get
 # ----------------------------------------------------------------- Config Mgmt
@@ -319,7 +321,8 @@ def render(md, cols, **kw):
     kw['term_width'] = cols
     return main(md, **kw)[0]
 
-if __name__ == '__main__':
+
+def sys_main():
     import sys
     import os
     from stat import S_ISFIFO
@@ -328,9 +331,15 @@ if __name__ == '__main__':
     if S_ISFIFO(os.fstat(0).st_mode): # pipe mode
         md = sys.stdin.read()
     else:
-        md = sys.argv[1]
+        if not len(sys.argv) > 1:
+            md = os.path.abspath(__file__).rsplit('/', 1)[0] + '/README.md'
+        else:
+            md = sys.argv[1]
         if os.path.exists(md):
             with open(md) as fd:
                 md = fd.read()
     main(md, term_width=cols)
+
+if __name__ == '__main__':
+    sys_main()
 
