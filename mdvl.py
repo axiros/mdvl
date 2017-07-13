@@ -66,6 +66,10 @@ class Facts(Cfg):
     light_bg         = False
     no_smart_indent  = False
     horiz_rule       = '─'
+    # left and right global indents:
+    indent           = 1
+    rindent          = 0
+
 
     def __init__(f, **kw):
         # first check if the config contains color codes and set to C:
@@ -78,7 +82,7 @@ h_rules_col = {'-': 'L', '_': 'H3', '*': 'H1'} # different colors
 h_rules = '---', '___', '***'
 def _main(md, f):
     C, cur_colr = f.colr, 'cur_colr'
-    cols = int(f.term_width)
+    cols = int(f.term_width) - f.indent - f.rindent
     g = {} # glob parsing state (current color, code blocks)
 
     md = md.strip()
@@ -168,9 +172,12 @@ def _main(md, f):
                 if is_list(l0):
                     ssi = 2
                 elif l0.startswith('*') and not f.no_smart_indent:
-                    keywrd, l1 = (l0 + ' ').split(' ', 1)
+                    p = '**' if l0.startswith('**') else '*'
+                    keywrd, l1 = l0[2:].split(p, 1)
+                    keywrd = l0[:2] + keywrd
                     l1 = l1.rstrip()
-                    ssi = len(l0) - len(l1.lstrip()) - 2
+                    offs = 0 if not l1[0] == ' ' else 2
+                    ssi = len(l0) - len(l1.lstrip()) - offs
                 if l0.startswith('**') and not f.no_smart_indent:
                     ssi -= 2
             if (     not is_header(nl)
@@ -242,6 +249,9 @@ def _main(md, f):
                           '%s%s%s' % (C.CODE, code_fmt(g[i]), C.O))
     out = out.replace(apos + '\n', '') # before
     out = out.replace(apos, '')        # after
+    li, ri = f.indent * ' ', f.rindent * ' '
+    if li or ri:
+        out = li + out.replace('\n', '%s\n%s' % (ri, li))
     out += C.O # reset
     if not f.no_print:
         print (out)

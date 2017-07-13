@@ -79,17 +79,29 @@ Additionally worth mentioning
     fenced code - or indented code
     w/o syntax highlighting though
 
-Little md violation:
-**Light** 'tables': This one is non standard - but somewhat handy for documenting e.g.
-CLI Params of a command.
+### Questionable Features ;-)
 
-*When* first word of a line is starred, we set a starting indent for the
+**Light "Tables"** This one is non standard - but somewhat handy for documenting e.g.
+CLI Params of a command:
+When first word of a line is starred, we set a starting indent for the
 subsequent lines of that textblock to the length of that first word.
-
-*That* way you get an easy table-like presentation of lists with keywords,
+See rendering of this paragraph in `mdvl`.
+That way you get an easy table-like presentation of lists with keywords,
 which look good also in the source. See the screenshot of the rendered readme for a visual example.
-
 If you don't need it, switch it off via `no_smart_indent=True`.
+
+**Horizontal Rules** CommonMark allows to use 3 "-", "_" or star. We assign
+different colors to them, see rendering of this README with `mdvl`.
+
+**Indents** configure `indent` and `rindent` ("r" for right) to get the output indented, e.g. ![](./img/indent.png)
+
+
+## Bugs
+
+Known and severe one is the problem of solicitated star characters. We
+currently can't detect them, the renderer assumes it is the beginning of an
+italic format :-(
+
 
 
 
@@ -113,5 +125,5 @@ want Python 2:
 ____
 ----
 
-Thats all - and demonstrates the horizontal rule ;-)
+Thats all - and demonstrates the horizontal rules ;-)
 
