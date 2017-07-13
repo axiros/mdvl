@@ -97,6 +97,9 @@ different colors to them, see rendering of this README with `mdvl`.
 That feature comes handy if you want to nest to markdown sources, i.g. module
 doc and function doc. ![](./img/indent.png)
 
+*Single Line Handling* No leading line breaks, enables to use markdown within
+ surrounding text.
+
 
 ## Bugs
 
