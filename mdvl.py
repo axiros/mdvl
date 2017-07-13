@@ -66,19 +66,24 @@ class Facts(Cfg):
     light_bg         = False
     no_smart_indent  = False
     horiz_rule       = '─'
+    single_line_mode = False
     # left and right global indents:
     indent           = 1
     rindent          = 0
     width            = 0 # if set > 0 we set rindent accordingly
 
 
-    def __init__(f, **kw):
+    def __init__(f, md, **kw):
         # first check if the config contains color codes and set to C:
         # now overriding our defaults with kw then with env
+        if md.split('\n', 1)[0] == md:
+            f.single_line_mode = True
+            f.indent = 0
         f.setup(kw)
         f.colr = Colors(); f.colr.setup(kw)
 
 # ------------------------------------------------ end config - begin rendering
+# helper funcs:
 def get_subseq_light_table_indent(l0):
     p = '**' if l0.startswith('**') else '*'
     keywrd, l1 = l0[2:].split(p, 1)
@@ -86,6 +91,16 @@ def get_subseq_light_table_indent(l0):
     l1 = l1
     offs = 1 if l1 and l1[0] == ' ' else 2
     return len(l0) - len(l1[offs:].lstrip()) - (2 * len(p))
+
+
+def block_quote_status(l, g):
+    'blockquote'
+    if not l.startswith('>'):
+        return 0, l, ''
+    _ = l.split(' ', 1)
+    lev = len(_[0])
+    g['max_bq_depth'] = max(lev, g['max_bq_depth'])
+    return lev, _[1], _[0]
 
 
 
@@ -124,17 +139,11 @@ def _main(md, f):
             ll = len(l)
             return True if l in (ll * '-', ll * '*', ll * '_') else False
 
-    def bq(l):
-        'blockquote'
-        if not l.startswith('>'):
-            return 0, l, ''
-        _ = l.split(' ', 1)
-        lev = len(_[0])
-        g['max_bq_depth'] = max(lev, g['max_bq_depth'])
-        return lev, _[1], _[0]
 
     # LINESPROCESSOR:
     lines, out = md.splitlines(), []
+    # remove boundary effects:
+    lines.insert(0, '')
     lines.append('')
     while lines:
 
@@ -147,8 +156,8 @@ def _main(md, f):
             out.append(getattr(C, h_rules_col[line[0]])+ (cols * f.horiz_rule))
             continue
 
-        # indentd code blocks:
-        cb = None
+
+        cb = None # indentd code blocks:
         while line.startswith('    '):
             cb = cb or []
             cb.append(line[4:])
@@ -163,15 +172,16 @@ def _main(md, f):
             continue
 
         ssi = None # subseq indent for textwrap
-        bqm = '' # blockquote mark. e.g. '>>'.
+
         # TEXTBLOCKS: Concat lines which must be wrapped:
-        bq_lev, line, bqm = bq(line) # blockquote status of that line
+        bqm = '' # blockquote mark. e.g. '>>'.
+        bq_lev, line, bqm = block_quote_status(line, g)
 
         while ( lines and not line.endswith('  ')
                       and not is_header(line) ):
 
             nl, l0 = lines[0], line.lstrip() # next line, this line
-            bqnl = bq(nl) # bq status of next line
+            bqnl = block_quote_status(nl, g)
             if bqnl[0] == bq_lev:
                 lines[0] = nl = bqnl[1] # remove redundant '>'
             elif bqnl[0] != bq_lev and bqnl[0] > 0:
@@ -243,13 +253,14 @@ def _main(md, f):
     out = altern(out, '\x01\x01', C.emph) # **
     out = altern(out, '\x01'    , C.ital) # *
 
-    # rearrange resets, to be before the line breaks, not after...
+    # rearrange resets, to be *before* the line breaks, not after...
     out = out.replace('\n' + C.O, C.O + '\n')
     # ... so that we can look for blockquotes:
     for i in range(g['max_bq_depth'], 0, -1):
         # coloring, take header levels. bq_mark is "|":
         m = ''
-        for j in range(1, i + 1): m += C.H(j) + f.bq_mark
+        for j in range(1, i + 1):
+            m += C.H(j) + f.bq_mark
         m += C.O
         out = out.replace('\n' + '>' * i, '\n' + m)
 
@@ -261,6 +272,9 @@ def _main(md, f):
                           '%s%s%s' % (C.CODE, code_fmt(g[i]), C.O))
     out = out.replace(apos + '\n', '') # before
     out = out.replace(apos, '')        # after
+    out = strip_it(out, C.O)
+    if not f.single_line_mode:
+        out = '\n' + out + '\n'
     li, ri = f.indent * ' ', f.rindent * ' '
     if li or ri:
         out = li + out.replace('\n', '%s\n%s' % (ri, li))
@@ -269,9 +283,29 @@ def _main(md, f):
         print (out)
     return out
 
+def strip_it(out, spc):
+    sc = {' ': 1, spc: len(spc), '\n': 1}
+    while 1:
+        m = False
+        for k in sc:
+            if out.startswith(k):
+                out = out[sc[k]:]
+                m = True
+            if out.endswith(k):
+                out = out[:-sc[k]]
+                m = True
+            if m:
+                break
+        if not m:
+            break
+    return out
+
+
+
+
 
 def main(md, **kw):
-    f = Facts(**kw)
+    f = Facts(md, **kw)
     #return _main(md, f), f  # we also return to the client the config
     try:
         return _main(md, f), f  # we also return to the client the config

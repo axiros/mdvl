@@ -7,16 +7,7 @@ pth = os.path.abspath(__file__).rsplit('/', 2)[0]
 sys.path.insert(0, pth)
 import mdvl
 
-
-'''
-We visually inspect the test results.
-If all ok we export record=1 and run again, so that we have the results
-as the next set of assertions for the next run
-
-Rationale: It is very tedious to write assertions with the escape codes and
-change all the time when we add a new feature, which might cause a
-re-arrrangement of the coloring in the code.
-'''
+# see README.md:
 inspect = os.environ.get('inspect')
 record = os.environ.get('record')
 if record:
@@ -150,6 +141,13 @@ class M(unittest.TestCase):
         '''
         , 'test_width', indent=10, width=10, rindent=2)
 
+    def test_single_line_mode(s):
+        s.c('> this is single line, no indent, no line sep'
+            , 'test_single_line_mode')
+
+    def test_single_line_mode_forced_indent(s):
+        s.c('> this is single line, still indent can be forced'
+            , 'test_single_line_mode_forced_indent', indent=10)
 
 
 if __name__ == '__main__':
