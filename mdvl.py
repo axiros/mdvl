@@ -322,7 +322,9 @@ def render(md, cols, **kw):
     return main(md, **kw)[0]
 
 __usage__ = '''
-# Usage
+# Lightweight Simple Markdown Renderer for the Terminal
+
+## Usage
 
     mdvl <markdown source | markdown file>
     cat <markdown file> | mdvl
