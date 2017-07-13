@@ -1,7 +1,7 @@
 '''
 How to upload
 
-python setup.py sdist bdist_wheel
+python setup.py clean sdist bdist_wheel
 twine upload dist/*
 '''
 

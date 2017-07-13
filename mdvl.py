@@ -4,7 +4,7 @@ from textwrap import fill
 from operator import setitem as set
 import re, os
 __author__ = "Gunther Klessinger"
-__version__ = "2017.07.14"
+__version__ = "2017.07.15"
 
 env = os.environ.get
 # ----------------------------------------------------------------- Config Mgmt

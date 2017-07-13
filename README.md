@@ -56,9 +56,16 @@ Intra textblock rendering is working like the standard, i.e. 2 spaces denote a l
 
 # 'Installation'
 
-    /tmp $ wget -q https://raw.githubusercontent.com/axiros/mdvl/master/mdvl.py
-    chmod 755 mdvl.py
-    echo "# hello world" | ./mdvl.py
+    wget -q https://raw.githubusercontent.com/axiros/mdvl/master/mdvl.py
+
+The url supports version pinning.
+
+If you absolutely feel better with 10 files instead of one then do:
+
+    pip[3] install mdvl
+
+> But if you already have pip on the system you anyway want a real renderer, e.g. mdv.
+
 
 
 # Configuration
