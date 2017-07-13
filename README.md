@@ -93,7 +93,9 @@ If you don't need it, switch it off via `no_smart_indent=True`.
 *Horizontal Rules* CommonMark allows to use 3 "-", "_" or star. We assign
 different colors to them, see rendering of this README with `mdvl`.
 
-*Indents* configure `indent` and/or `width` and/or `rindent` ("r" for right) to get the output indented, e.g. ![](./img/indent.png)
+*Indents* configure `indent` and/or `width` and/or `rindent` ("r" for right) to get the output indented
+That feature comes handy if you want to nest to markdown sources, i.g. module
+doc and function doc. ![](./img/indent.png)
 
 
 ## Bugs
