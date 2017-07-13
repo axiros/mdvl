@@ -29,7 +29,7 @@ from textwrap import fill
 from operator import setitem as set
 import re, os
 __author__ = "Gunther Klessinger"
-__version__ = "2017.07.15"
+__version__ = "2017.07.16"
 
 # check environ for value and cast into bools if necessary:
 _b = {'True': True, 'False': False}
@@ -378,6 +378,19 @@ def render(md, cols, **kw):
     kw['term_width'] = cols
     return main(md, **kw)[0]
 
+def get_help(cols, PY2):
+    ff = Facts('\n', term_width=cols)
+    md = __doc__
+    for o in ff, ff.colr:
+        mmd = ()
+        for k, d in sorted(o._parms):
+            v = getattr(o, k)
+            if o == ff: # need the perceived len here:
+                v = str(u'%5s' % str(v)) if PY2 else '%5s' % v
+            mmd += ('%s %s [%s]' % (v, k, d),)
+        md = md % ('\n'.join(mmd))
+    return md
+
 def sys_main():
     import sys
     PY2 = sys.version_info[0] == 2
@@ -391,16 +404,7 @@ def sys_main():
         md = sys.stdin.read()
     else:
         if not len(sys.argv) > 1 or '-h' in sys.argv:
-            ff = Facts('\n', term_width=cols)
-            md = __doc__
-            for o in ff, ff.colr:
-                mmd = ()
-                for k, d in sorted(o._parms):
-                    v = getattr(o, k)
-                    if o == ff: # need the perceived len here:
-                        v = str(u'%5s' % str(v)) if PY2 else '%5s' % v
-                    mmd += ('%s %s [%s]' % (v, k, d),)
-                md = md % ('\n'.join(mmd))
+            md = get_help(cols, PY2)
         else:
             md = sys.argv[1]
         if os.path.exists(md):
