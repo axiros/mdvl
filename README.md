@@ -1,6 +1,6 @@
 # Light Markdown Renderer
 
-[![Build Status](https://travis-ci.org/axiros/mdvl.svg?branch=master)](https://travis-ci.org/axiros/mdvl)
+[![Build Status][travis_img]][travis]
 
 Dependency free renderer for a subset of markdown to the terminal
 - w/o going via HTML (i.e. no html markup support)
@@ -28,13 +28,16 @@ script you would only need the main function and replace the `C.<color>` with
 the shell eviron vars, e.g. `C.H1` -> `$H1`
 
 
-
 # Design
 
-## Wrapping
-We stay closer to the source document than a real md renderer would, e.g. we
-keep all linebreaks between two textblocks.
-Intra textblock rendering is working like the standard, i.e. 2 spaces denote a linesep, else we wrap according to available columns.
+We assume the soure *is* already formatted with care and
+mdvl's main jobs are the coloring and the wrapping. Meaning that the source is
+formatted to be readable in environments w/o coloring and structure aware wrapping,
+specifically docstrings in source code editors.
+
+Specifically this refers to the author using the markdown link reference feature
+instead of spamming the source with long urls.  
+Seel also the handling of linespacing, below.
 
 
 # Usage
@@ -58,13 +61,13 @@ Intra textblock rendering is working like the standard, i.e. 2 spaces denote a l
 
     wget -q https://raw.githubusercontent.com/axiros/mdvl/master/mdvl.py
 
-The url supports version pinning.
+Yes, that url supports version pinning.
 
 If you absolutely feel better with 10 files instead of one then do:
 
     pip[3] install mdvl
 
-> But if you already have pip on the system you anyway want a real renderer, e.g. mdv.
+> Remember: This is not a very feature rich renderer. If you anyway already have pip on the system you want a real viewer, e.g. mdv.
 
 
 
@@ -84,14 +87,24 @@ set -a; H1=171; H2=54; term_width=50; header_numbering=-1; set +a
 ```
 
 
-Additionally worth mentioning
+## Worth mentioning
+
+### Blockquotes
 
 > Blockquotes
 >> - in different levels
 >> - with lists
 
+### Fenced Code or Indented Code
+
     fenced code - or indented code
     w/o syntax highlighting though
+
+### Line Spacing
+We stay closer to the source document than a real md renderer would, e.g. we
+*keep* all linebreaks between two textblocks.
+Intra textblock rendering is working like the standard, i.e. 2 spaces denote a linesep, else we wrap according to available columns.
+
 
 
 ## Questionable Features ;-)
@@ -151,5 +164,9 @@ ____
 Thats all - and demonstrates the horizontal rules ;-)
 
 
-[1]: https://github.com/axiros/mdvl/blob/master/mdvl.py#L61  
+[1]: https://github.com/axiros/mdvl/blob/master/mdvl.py#L61
 [2]: https://github.com/axiros/mdvl/blob/master/mdvl.py#L30
+[travis_img]: https://travis-ci.org/axiros/mdvl.svg?branch=master
+[travis]:     https://travis-ci.org/axiros/mdvl
+
+

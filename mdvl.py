@@ -81,6 +81,7 @@ class Facts(Cfg):
     rindent          = 0
     width            = 0 # if set > 0 we set rindent accordingly
     header_numbering = 10 # -1: off, min number of lines to do autonumbering
+    header_underlining = '*' # e.g. '*-' to underline H1 with *** and H2 with ---
 
 
     def __init__(f, md, **kw):
@@ -145,6 +146,7 @@ def _main(md, f):
     is_header  = lambda l: l.startswith('#')
     is_list    = lambda l: l.lstrip().startswith('- ')
     is_empty   = lambda l: l.strip() == ''
+    is_md_link = lambda l: l[0] == '[' and 'http' in l and ']' in l
     def is_rule(l):
         if l[:3] in h_rules:
             ll = len(l)
@@ -174,7 +176,6 @@ def _main(md, f):
             out.append(getattr(C, h_rules_col[line[0]])+ (cols * f.horiz_rule))
             continue
 
-
         cb = None # indentd code blocks:
         while line.startswith('    '):
             cb = cb or []
@@ -195,9 +196,11 @@ def _main(md, f):
         bqm = '' # blockquote mark. e.g. '>>'.
         bq_lev, line, bqm = block_quote_status(line, g)
 
+        src_line_nr = 0
         while ( lines and not line.endswith('  ')
                       and not is_header(line) ):
 
+            src_line_nr += 1
             nl, l0 = lines[0], line.lstrip() # next line, this line
             bqnl = block_quote_status(nl, g)
             if bqnl[0] == bq_lev:
@@ -216,20 +219,23 @@ def _main(md, f):
             if ssi == None:
                 if is_list(l0):
                     ssi = 2
-                elif l0.startswith('*') and not f.no_smart_indent:
+                elif ( l0.startswith('*') and
+                       not f.no_smart_indent and
+                       src_line_nr == 1 ):
                     ssi = get_subseq_light_table_indent(l0)
-                #if l0.startswith('**') and not f.no_smart_indent:
-                #    ssi -= 2
-            if (     not is_header(nl)
-                 and not is_list(nl)
-                 and not is_empty(nl)
-                 and not nl[0] in ('*', '\x02')
-                 and not is_rule(nl)
+
+            if ( not is_header(nl)       and
+                 not is_list(nl)         and
+                 not is_empty(nl)        and
+                 not is_md_link(nl)      and
+                 not nl[0] in ('\x02', ) and
+                 not is_rule(nl)
                  ):
                 line = line.rstrip() + ' ' + lines.pop(0).lstrip()
             else:
                 # line is now one wrapable textblock
-                if bqnl[0]:
+                if bqnl[0]: # block quote new line
+                    # adapt next line to parse:
                     lines[0] = (bqnl[2] + ' ') + lines[0]
                 break
 
@@ -246,6 +252,11 @@ def _main(md, f):
         if is_header(line):
             h, line = line.split(' ', 1)
             level = len(h)
+
+            u = getattr(f, 'header_underlining', '')
+            if len(u) >= level:
+                lines.insert(0, 3 * u[level-1])
+
             if g['header_numbering']:
                 hl = g['header_level']
                 hl[level] = hl.get(level, 0) + 1
@@ -258,11 +269,13 @@ def _main(md, f):
         if len(line) > cols:
             s = (bqm + ' ' *  (ind + ssi))
             line = fill(line, subsequent_indent=s, width=cols)
-
+        if is_md_link(line):
+            g[cur_colr] = C.GRAY
         out.append(g[cur_colr] + line)
 
 
     # --------------- Leaving line/block scanning, reWork complete document now
+    g[cur_colr] = C.O
     out = '\n'.join(out)
 
     # INLINE MARKUP, *, **, backticks
