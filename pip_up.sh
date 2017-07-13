@@ -2,12 +2,22 @@
 
 echo "Uploading to pip"
 set -x
-test -e "tests/test_mdvl.py" || exit 1
+test -e "./tests/test_mdvl.py" || exit 1
 
-rm -rf dist
-pandoc README.md -o README.rst
+clean () {
+    rm -rf ./dist
+    rm -rf ./mdvl.egg-info
+    rm -rf ./__pycache__
+    rm -rf ./build
+}
+clean
+pandoc ./README.md -o README.rst
 python setup.py clean sdist bdist_wheel
-twine upload dist/*
+twine upload ./dist/*
+clean
+
+
+
 
 
 

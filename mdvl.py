@@ -24,7 +24,7 @@
 See also https://github.com/axiros/mdvl
 
 '''
-__version__ = "2017.07.16.6" # count up for new pip versions
+__version__ = "2017.07.16.7" # count up for new pip versions
 __author__ = "Gunther Klessinger"
 
 from textwrap import fill
@@ -380,13 +380,13 @@ def render(md, cols, **kw):
 
 def get_help(cols, PY2):
     ff = Facts('\n', term_width=cols)
-    md = __doc__
-    for o in ff, ff.colr:
+    md, C = __doc__, ff.colr
+    for o in ff, C:
         mmd = ()
         for k, d in sorted(o._parms):
             v = getattr(o, k)
             if o == ff: # need the perceived len here:
-                v = str(u'%5s' % str(v)) if PY2 else '%5s' % v
+                v = C.H2 + (str(u'%5s' % str(v)) if PY2 else '%5s' % v) + C.O
             mmd += ('%s %s [%s]' % (v, k, d),)
         md = md % ('\n'.join(mmd))
     return md
