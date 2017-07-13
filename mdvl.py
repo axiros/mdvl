@@ -1,5 +1,30 @@
 #!/usr/bin/env python -Ss
 # coding: utf-8
+
+'''
+# Lightweight Simple Markdown Renderer for the Terminal
+
+## Usage
+
+    mdvl <markdown source | markdown file>
+    cat <markdown file> | mdvl
+
+## Config
+
+```
+%s
+```
+
+### Colors
+
+```
+%%s
+```
+
+See also https://github.com/axiros/mdvl
+
+'''
+
 from textwrap import fill
 from operator import setitem as set
 import re, os
@@ -353,29 +378,6 @@ def render(md, cols, **kw):
     kw['term_width'] = cols
     return main(md, **kw)[0]
 
-__usage__ = '''
-# Lightweight Simple Markdown Renderer for the Terminal
-
-## Usage
-
-    mdvl <markdown source | markdown file>
-    cat <markdown file> | mdvl
-
-## Config
-
-```
-%s
-```
-
-### Colors
-
-```
-%%s
-```
-
-See also https://github.com/axiros/mdvl
-
-'''
 def sys_main():
     import sys
     PY2 = sys.version_info[0] == 2
@@ -390,12 +392,12 @@ def sys_main():
     else:
         if not len(sys.argv) > 1 or '-h' in sys.argv:
             ff = Facts('\n', term_width=cols)
-            md = __usage__
+            md = __doc__
             for o in ff, ff.colr:
                 mmd = ()
                 for k, d in sorted(o._parms):
                     v = getattr(o, k)
-                    if o == ff:
+                    if o == ff: # need the perceived len here:
                         v = str(u'%5s' % str(v)) if PY2 else '%5s' % v
                     mmd += ('%s %s [%s]' % (v, k, d),)
                 md = md % ('\n'.join(mmd))
