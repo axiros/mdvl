@@ -1,3 +1,10 @@
+'''
+How to upload
+
+python setup.py sdist bdist_wheel
+twine upload dist/*
+'''
+
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -23,8 +30,9 @@ setup(
     url='https://github.com/axiros/mdvl',
 
     author=__author__,
+    author_email='gk@axiros.com',
 
-    license='MIT',
+    license='BSD',
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -38,8 +46,7 @@ setup(
         "Topic :: Text Processing :: Markup",
         "Operating System :: POSIX",
 
-        # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: BSD License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.

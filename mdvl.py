@@ -4,7 +4,7 @@ from textwrap import fill
 from operator import setitem as set
 import re, os
 __author__ = "Gunther Klessinger"
-__version__ = "2017.07.13"
+__version__ = "2017.07.14"
 
 env = os.environ.get
 # ----------------------------------------------------------------- Config Mgmt
@@ -321,7 +321,15 @@ def render(md, cols, **kw):
     kw['term_width'] = cols
     return main(md, **kw)[0]
 
+__usage__ = '''
+# Usage
 
+    mdvl <markdown source | markdown file>
+    cat <markdown file> | mdvl
+
+See also https://github.com/axiros/mdvl
+
+'''
 def sys_main():
     import sys
     import os
@@ -332,7 +340,7 @@ def sys_main():
         md = sys.stdin.read()
     else:
         if not len(sys.argv) > 1:
-            md = os.path.abspath(__file__).rsplit('/', 1)[0] + '/README.md'
+            md = __usage__
         else:
             md = sys.argv[1]
         if os.path.exists(md):
