@@ -17,8 +17,11 @@ Rationale: It is very tedious to write assertions with the escape codes and
 change all the time when we add a new feature, which might cause a
 re-arrrangement of the coloring in the code.
 '''
-record = os.environ.get('record')
 inspect = os.environ.get('inspect')
+record = os.environ.get('record')
+if record:
+    print('removing old recordings')
+    os.system('/bin/rm -f "%s"' % (pth + '/tests/results/'))
 
 def dedent(s):
     md = s.splitlines()
@@ -26,13 +29,39 @@ def dedent(s):
     ind = len(md[1]) - len(md[1].lstrip())
     return '\n'.join([m[ind:] for m in md])
 
+class F(unittest.TestCase):
+    def test_gslti(s):
+        gslti = mdvl.get_subseq_light_table_indent
+        assert gslti('*a* b'       ) == 2
+        assert gslti('*a b* b'     ) == 4
+        assert gslti('*a*: b'      ) == 3
+        assert gslti('*a b*: b'    ) == 5
+        assert gslti('*a* b '      ) == 2
+        assert gslti('*a b* b '    ) == 4
+        assert gslti('*a*: b '     ) == 3
+        assert gslti('*a b*: b '   ) == 5
+        assert gslti('**a** b'     ) == 2
+        assert gslti('**a b** b'   ) == 4
+        assert gslti('**a**: b'    ) == 3
+        assert gslti('**a b**: b'  ) == 5
+        assert gslti('**a** b '    ) == 2
+        assert gslti('**a b** b '  ) == 4
+        assert gslti('**a**: b '   ) == 3
+        assert gslti('**a b**: b ' ) == 5
+
+
+
+
 class M(unittest.TestCase):
-    def c(s, md, testcase):
-        print('\n-----\n')
+    def c(s, md, testcase, **kw):
+        print('\n\n%s\n' % ('=' * 40))
+        print('Testcase: %s' % testcase)
+        print('\n\n%s\n' % ('=' * 40))
         md = dedent(md)
         print('source (spaces as dots):')
         print(md.replace(' ', '.'))
-        mdr, f = mdvl.main(md, no_print=True)
+        mdr, f = mdvl.main(md, no_print=True, **kw)
+        print('result:')
         print(mdr)
         if inspect:
             return
@@ -69,13 +98,27 @@ class M(unittest.TestCase):
         ''', 'test_list_wrap')
 
 
-    def test_list_table(s):
+    def test_light_table(s):
         s.c( '''
         # H1
-        *foo* L
+        *xyz* L
         *foobar* baz
+
+        # Fat:
+        **xyz** L
+        **foobar** baz
+
+        # no spc
+        *xyz*: L
+        *foobar*: baz
+
+        # Fat no spc:
+        **xyz**: L
+        **foobar**: baz
+
         '''.replace('L', 'asdf ' * 20)
-        , 'test_list_table')
+        , 'test_light_table')
+
 
     def test_horiz_rules(s):
         s.c( '''
@@ -88,6 +131,24 @@ class M(unittest.TestCase):
         baz
         '''
         , 'test_horiz_rules')
+
+
+    def test_indent(s):
+        s.c( '''
+        # H1
+        ----
+        a longer sentence which will be indented by 5 chars
+        '''
+        , 'test_indent', indent=5)
+
+
+    def test_width(s):
+        s.c( '''
+        # H1
+        ----
+        a longer sentence which will be wrapped into max 8 chars
+        '''
+        , 'test_width', indent=10, width=10, rindent=2)
 
 
 

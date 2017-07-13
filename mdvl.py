@@ -79,13 +79,23 @@ class Facts(Cfg):
         f.colr = Colors(); f.colr.setup(kw)
 
 # ------------------------------------------------ end config - begin rendering
+def get_subseq_light_table_indent(l0):
+    p = '**' if l0.startswith('**') else '*'
+    keywrd, l1 = l0[2:].split(p, 1)
+    keywrd = l0[:2] + keywrd + p
+    l1 = l1
+    offs = 1 if l1 and l1[0] == ' ' else 2
+    return len(l0) - len(l1[offs:].lstrip()) - (2 * len(p))
+
+
+
 h_rules_col = {'-': 'L', '_': 'H3', '*': 'H1'} # different colors
 h_rules = '---', '___', '***'
 def _main(md, f):
     C, cur_colr = f.colr, 'cur_colr'
     cols = int(f.term_width)
     if f.width:
-        f.rindent = cols - f.indent - f.width - f.rindent
+        f.rindent = cols - f.indent - f.width + f.rindent
     cols = cols - f.indent - f.rindent
 
     g = {} # glob parsing state (current color, code blocks)
@@ -173,18 +183,15 @@ def _main(md, f):
             # position: first line second word start.
             # Gives easy 2 col wrappable tables when first col is hilited.
 
+            #if 'xyz' in line:
+            #    import pdb; pdb.set_trace()
             if ssi == None:
                 if is_list(l0):
                     ssi = 2
                 elif l0.startswith('*') and not f.no_smart_indent:
-                    p = '**' if l0.startswith('**') else '*'
-                    keywrd, l1 = l0[2:].split(p, 1)
-                    keywrd = l0[:2] + keywrd
-                    l1 = l1.rstrip()
-                    offs = 0 if not l1[0] == ' ' else 2
-                    ssi = len(l0) - len(l1.lstrip()) - offs
-                if l0.startswith('**') and not f.no_smart_indent:
-                    ssi -= 2
+                    ssi = get_subseq_light_table_indent(l0)
+                #if l0.startswith('**') and not f.no_smart_indent:
+                #    ssi -= 2
             if (     not is_header(nl)
                  and not is_list(nl)
                  and not is_empty(nl)
