@@ -29,32 +29,32 @@ the shell eviron vars, e.g. `C.H1` -> `$H1`
 
 
 
-## Design
+# Design
 
-### Wrapping
+## Wrapping
 We stay closer to the source document than a real md renderer would, e.g. we
 keep all linebreaks between two textblocks.
 Intra textblock rendering is working like the standard, i.e. 2 spaces denote a linesep, else we wrap according to available columns.
 
 
-## Usage
+# Usage
 
-### Inline
+## Inline
 
     mdvl(source_markdown, **config)
 
-### Pipe
+## Pipe
 
     cat README.md | ./mdvl.py
 
-### Standalone
+## Standalone
 
 ```
 ./mdv.py '''# Hello'''
 ./mdv.py README.md
 ```
 
-## Configuration
+# Configuration
 
 Check attributes of classes `Facts` and `Colors`. Those you can deliver as kw
 args or via environ. e.g.:
@@ -63,7 +63,7 @@ args or via environ. e.g.:
 set -a; H1=171; H2=54; term_width=50; set +a; ./mdvl.py README.md
 ```
 
-## Features
+# Features
 
 Restricted set of md. This readme pretty much has them all in.
 
@@ -79,9 +79,9 @@ Additionally worth mentioning
     fenced code - or indented code
     w/o syntax highlighting though
 
-### Questionable Features ;-)
+## Questionable Features ;-)
 
-**Light "Tables"** This one is non standard - but somewhat handy for documenting e.g.
+*Light "Tables"* This one is non standard - but somewhat handy for documenting e.g.
 CLI Params of a command:
 When first word of a line is starred, we set a starting indent for the
 subsequent lines of that textblock to the length of that first word.
@@ -90,10 +90,10 @@ That way you get an easy table-like presentation of lists with keywords,
 which look good also in the source. See the screenshot of the rendered readme for a visual example.
 If you don't need it, switch it off via `no_smart_indent=True`.
 
-**Horizontal Rules** CommonMark allows to use 3 "-", "_" or star. We assign
+*Horizontal Rules* CommonMark allows to use 3 "-", "_" or star. We assign
 different colors to them, see rendering of this README with `mdvl`.
 
-**Indents** configure `indent` and `rindent` ("r" for right) to get the output indented, e.g. ![](./img/indent.png)
+*Indents* configure `indent` and/or `width` and/or `rindent` ("r" for right) to get the output indented, e.g. ![](./img/indent.png)
 
 
 ## Bugs
