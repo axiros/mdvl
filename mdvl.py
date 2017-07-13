@@ -6,9 +6,9 @@ import re, os
 __author__ = "Gunther Klessinger"
 __version__ = "2017.07.15"
 
-def env(k, d=None):
-    res = os.environ.get(k, d)
-    return True if res == 'True' else False if res == 'False' else res
+# check environ for value and cast into bools if necessary:
+_b = {'True': True, 'False': False}
+env = lambda k, d=None: _b.get(k, os.environ.get(k, d))
 
 # ----------------------------------------------------------------- Config Mgmt
 class Cfg:
@@ -361,11 +361,26 @@ __usage__ = '''
     mdvl <markdown source | markdown file>
     cat <markdown file> | mdvl
 
+## Config
+
+```
+%s
+```
+
+### Colors
+
+```
+%%s
+```
+
 See also https://github.com/axiros/mdvl
 
 '''
 def sys_main():
     import sys
+    PY2 = sys.version_info[0] == 2
+    if PY2:
+        reload(sys); sys.setdefaultencoding('utf-8')
     import os
     from stat import S_ISFIFO
     # allow to adapt $COLUMNS by setting $term_width:
@@ -374,7 +389,16 @@ def sys_main():
         md = sys.stdin.read()
     else:
         if not len(sys.argv) > 1 or '-h' in sys.argv:
+            ff = Facts('\n', term_width=cols)
             md = __usage__
+            for o in ff, ff.colr:
+                mmd = ()
+                for k, d in sorted(o._parms):
+                    v = getattr(o, k)
+                    if o == ff:
+                        v = str(u'%5s' % str(v)) if PY2 else '%5s' % v
+                    mmd += ('%s %s [%s]' % (v, k, d),)
+                md = md % ('\n'.join(mmd))
         else:
             md = sys.argv[1]
         if os.path.exists(md):
