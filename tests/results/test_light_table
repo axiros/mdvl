@@ -1,20 +1,20 @@
  
- [1;38;5;158mH1[0m
+ [1;38;5;158m1 H1[0m
  [1;38;5;72mxyz[0m asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
      asdf asdf asdf asdf asdf asdf[0m
  [1;38;5;72mfoobar[0m baz
  
- [1;38;5;158mFat:[0m
+ [1;38;5;158m2 Fat:[0m
  [1;38;5;158mxyz[0m asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
      asdf asdf asdf asdf asdf asdf[0m
  [1;38;5;158mfoobar[0m baz
  
- [1;38;5;158mno spc[0m
+ [1;38;5;158m3 no spc[0m
  [1;38;5;72mxyz[0m: asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
       asdf asdf asdf asdf asdf asdf[0m
  [1;38;5;72mfoobar[0m: baz
  
- [1;38;5;158mFat no spc:[0m
+ [1;38;5;158m4 Fat no spc:[0m
  [1;38;5;158mxyz[0m: asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf asdf
       asdf asdf asdf asdf asdf asdf[0m
  [1;38;5;158mfoobar[0m: baz
