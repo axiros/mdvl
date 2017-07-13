@@ -29,7 +29,11 @@ class Cfg:
 
 
 class Colors(Cfg):
-    # just a color namespace, built from facts which are from env
+    '''
+    Color namespae with efault color scheme (greenish).
+    The 'C' in the main method.
+    x_ -> x with ansi escapes in __init__, with env precedence
+    '''
     O = '\x1B[0m'
     GRAY = 240
     CODE = 245
@@ -42,6 +46,7 @@ class Colors(Cfg):
     ital = env('M', 72)
 
     def get_val(self, k, dflt, kw):
+        # see Cfg for expl.
         v = kw.get(k, env(k, dflt))
         v = str(v)
         if '\x1B' in v:
@@ -57,8 +62,7 @@ class Colors(Cfg):
 
 
 class Facts(Cfg):
-    '''default scheme. The 'C' in the main method.
-    x_ -> x with ansi escapes in __init__, with env precedence'''
+    ''' features config '''
     term_width       = 80
     no_print         = False
     bq_mark          = '┃'

@@ -56,8 +56,8 @@ Intra textblock rendering is working like the standard, i.e. 2 spaces denote a l
 
 # Configuration
 
-Check attributes of classes `Facts` and `Colors`. Those you can deliver as kw
-args or via environ. e.g.:
+Check attributes of classes [`Facts`][1] and [`Colors`][2].
+Those you can deliver as kw args or via environ. e.g.:
 
 ```
 set -a; H1=171; H2=54; term_width=50; set +a; ./mdvl.py README.md
@@ -132,3 +132,6 @@ ____
 
 Thats all - and demonstrates the horizontal rules ;-)
 
+
+[1]: https://github.com/axiros/mdvl/blob/master/mdvl.py#L61
+[2]: https://github.com/axiros/mdvl/blob/master/mdvl.py#L30
