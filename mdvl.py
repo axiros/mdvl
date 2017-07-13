@@ -80,7 +80,7 @@ class Facts(Cfg):
     indent           = 1
     rindent          = 0
     width            = 0 # if set > 0 we set rindent accordingly
-    header_numbering = 10 # -1: off, min number of lines to do autonumbering
+    header_numbering = 50 # -1: off, min number of lines to do autonumbering
     header_underlining = '*' # e.g. '*-' to underline H1 with *** and H2 with ---
 
 
