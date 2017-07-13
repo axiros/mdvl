@@ -373,7 +373,7 @@ def sys_main():
     if S_ISFIFO(os.fstat(0).st_mode): # pipe mode
         md = sys.stdin.read()
     else:
-        if not len(sys.argv) > 1:
+        if not len(sys.argv) > 1 or '-h' in sys.argv:
             md = __usage__
         else:
             md = sys.argv[1]
