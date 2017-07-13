@@ -69,6 +69,7 @@ class Facts(Cfg):
     # left and right global indents:
     indent           = 1
     rindent          = 0
+    width            = 0 # if set > 0 we set rindent accordingly
 
 
     def __init__(f, **kw):
@@ -82,7 +83,11 @@ h_rules_col = {'-': 'L', '_': 'H3', '*': 'H1'} # different colors
 h_rules = '---', '___', '***'
 def _main(md, f):
     C, cur_colr = f.colr, 'cur_colr'
-    cols = int(f.term_width) - f.indent - f.rindent
+    cols = int(f.term_width)
+    if f.width:
+        f.rindent = cols - f.indent - f.width - f.rindent
+    cols = cols - f.indent - f.rindent
+
     g = {} # glob parsing state (current color, code blocks)
 
     md = md.strip()

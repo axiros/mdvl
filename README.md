@@ -100,7 +100,7 @@ different colors to them, see rendering of this README with `mdvl`.
 
 Known and severe one is the problem of solicitated star characters. We
 currently can't detect them, the renderer assumes it is the beginning of an
-italic format :-(
+italic format and resets only at the next textblock :-(
 
 
 
