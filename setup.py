@@ -16,8 +16,12 @@ from mdvl import __version__, __author__
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+    desc = f.read()
+
+desc = '''NOTE This is a pandoc mardkown to rst conversion.
+Go `here <https://github.com/axiros/mdvl/>`__ for the original.
+'''
 
 setup(
     name='mdvl',
@@ -25,7 +29,7 @@ setup(
     version=__version__,
 
     description='Lightweight Terminal Markdown Renderer',
-    long_description=long_description,
+    long_description=desc,
 
     url='https://github.com/axiros/mdvl',
 

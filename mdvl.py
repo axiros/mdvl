@@ -24,12 +24,12 @@
 See also https://github.com/axiros/mdvl
 
 '''
+__version__ = "2017.07.16.4" # count up for new pip versions
+__author__ = "Gunther Klessinger"
 
 from textwrap import fill
 from operator import setitem as set
 import re, os
-__author__ = "Gunther Klessinger"
-__version__ = "2017.07.16"
 
 # check environ for value and cast into bools if necessary:
 _b = {'True': True, 'False': False}
