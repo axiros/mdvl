@@ -287,8 +287,9 @@ def _main(md, f):
         print (out)
     return out
 
-def strip_it(out, spc):
-    sc = {' ': 1, spc: len(spc), '\n': 1}
+def strip_it(out, rst):
+    'clumsy way to strip at start at end, including color resets'
+    sc = {' ': 1, rst: len(rst), '\n': 1}
     while 1:
         m = False
         for k in sc:
@@ -303,9 +304,6 @@ def strip_it(out, spc):
         if not m:
             break
     return out
-
-
-
 
 
 def main(md, **kw):
