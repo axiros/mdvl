@@ -71,7 +71,7 @@ class Colors(Cfg):
     H1   = env('I', 158)
     H2   = env('G', 115)
     H3   = env('M', 72)
-    H4   = env('L', 66)
+    H4   = env('CODE', 66)
     emph = env('I', 158)
     ital = env('M', 72)
 
@@ -312,7 +312,7 @@ def _main(md, f):
     # Star must be replaced, else the re would not work :((
     # currently no way to find single stars and not process them..
     out = out.replace('*', '\x01')
-    out = altern(out, apo       , C.L) # code
+    out = altern(out, apo       , C.CODE) # code
     out = altern(out, '\x01\x01', C.emph) # **
     out = altern(out, '\x01'    , C.ital) # *
 
