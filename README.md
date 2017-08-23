@@ -58,6 +58,11 @@ Seel also the handling of linespacing, below.
 ./mdv.py README.md
 ```
 
+## Shebang Problem
+
+We use `#!/usr/bin/env python -Ss` as shebang - which is not POSIX I had to [learn](https://stackoverflow.com/questions/4303128/how-to-use-multiple-arguments-with-a-shebang-i-e), after seeing it fail on some Linuxes. Workaround is to call mdvl.py through an alias like `python -Ss mdvl.py`.
+
+
 # 'Installation'
 
     wget -q https://raw.githubusercontent.com/axiros/mdvl/master/mdvl.py
