@@ -1,6 +1,6 @@
 #!/usr/bin/env python -Ss
 # coding: utf-8
-
+# Some systems do not accept shebang with args. Use python -Ss mdvl.py then.
 '''
 # Lightweight Simple Markdown Renderer for the Terminal
 
