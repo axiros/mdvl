@@ -107,6 +107,9 @@ class Facts(Cfg):
     width            = 0 # if set > 0 we set rindent accordingly
     header_numbering = 50 # -1: off, min number of lines to do autonumbering
     header_underlining = '*' # e.g. '*-' to underline H1 with *** and H2 with ---
+    opts_tbl_start   = '-'
+    opts_tbl_end     = ':'
+    opts_tbl_col     = 'H2'
 
 
     def __init__(f, md, **kw):
@@ -168,10 +171,17 @@ def _main(md, f):
     g['max_bq_depth'] = 0
 
     # Tools:
+    first_word = lambda l: l.split(' ', 1)[0]
     is_header  = lambda l: l.startswith('#')
     is_list    = lambda l: l.lstrip().startswith('- ')
     is_empty   = lambda l: l.strip() == ''
     is_md_link = lambda l: l[0] == '[' and 'http' in l and ']' in l
+    def is_opts_tbl(l, b=f.opts_tbl_start, e=f.opts_tbl_end):
+        fw = first_word(l)
+        if fw and fw.startswith(b) and fw.endswith(e):
+            return l.replace(fw, '*%s*' % fw[:-len(e)]), len(fw)
+        return l, None
+
     def is_rule(l):
         if l[:3] in h_rules:
             ll = len(l)
@@ -222,6 +232,7 @@ def _main(md, f):
         bq_lev, line, bqm = block_quote_status(line, g)
 
         src_line_nr = 0
+        line, opts_tbl_ssi = is_opts_tbl(line)
         while ( lines and not line.endswith('  ')
                       and not is_header(line) ):
 
@@ -244,6 +255,8 @@ def _main(md, f):
             if ssi == None:
                 if is_list(l0):
                     ssi = 2
+                elif opts_tbl_ssi:
+                    ssi = opts_tbl_ssi
                 elif ( l0.startswith('*') and
                        not f.no_smart_indent and
                        src_line_nr == 1 ):
@@ -251,6 +264,7 @@ def _main(md, f):
 
             if ( not is_header(nl)       and
                  not is_list(nl)         and
+                 not is_opts_tbl(nl)[1]  and
                  not is_empty(nl)        and
                  not is_md_link(nl)      and
                  not nl[0] in ('\x02', ) and
