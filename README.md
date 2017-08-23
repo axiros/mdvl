@@ -119,7 +119,7 @@ Intra textblock rendering is working like the standard, i.e. 2 spaces denote a l
 markdown sources (-1 to switch feature off). When source document has more
 lines than this we'll autonumber the headers.
 
-*Light "Tables"* This one is non standard - but somewhat handy for documenting e.g.
+*Light "Tables"* Non standard - but somewhat handy for documenting e.g.
 CLI Params of a command:
 When first word of a line is starred, we set a starting indent for the
 subsequent lines of that textblock to the length of that first word.
@@ -127,6 +127,22 @@ See rendering of this paragraph in `mdvl`.
 That way you get an easy table-like presentation of lists with keywords,
 which look good also in the source. See the screenshot of the rendered readme for a visual example.
 If you don't need it, switch it off via `no_smart_indent=True`.
+
+*Options List* Non standard as well. Formats lines like   
+
+-a: Option A  
+-b: Option B  
+
+nicely. Trigger is that the first word of a line startswith '-', endswith ':'.
+You can overwrite the triggers via `opts_tbl_start` and `opts_tbl_end` (which you
+might want to use to switch that feature off).
+
+> we do not require two spaces for such options lists to line break. Add them
+> if you render in standard renderers or preprocess them.
+
+![](./img/opts_src.png)
+![](./img/opts_res.png)
+
 
 *Horizontal Rules* CommonMark allows to use 3 "-", "_" or star. We assign
 different colors to them, see rendering of this README with `mdvl`.
