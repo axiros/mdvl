@@ -60,7 +60,8 @@ Seel also the handling of linespacing, below.
 
 ## Shebang Problem
 
-We use `#!/usr/bin/env python -Ss` as shebang - which is not POSIX I had to learn, after seeing it fail on some Linuxes. Workaround is to call mdvl.py through an alias like `python -Ss mdvl.py`.
+We use `#!/usr/bin/env python -Ss` as shebang - which is not POSIX I had to [learn](https://stackoverflow.com/questions/4303128/how-to-use-multiple-arguments-with-a-shebang-i-e), after seeing it fail on some Linuxes. Workaround is to call mdvl.py through an alias like `python -Ss mdvl.py`.
+
 
 # 'Installation'
 
