@@ -133,7 +133,8 @@ If you don't need it, switch it off via `no_smart_indent=True`.
 -a: Option A  
 -b: Option B  
 
-nicely. Trigger is that the first word of a line startswith '-', endswith ':'.
+nicely, i.e. with indented line wrapping and markup of the first word.
+Trigger is that the first word of a line startswith '-', endswith ':'.
 You can overwrite the triggers via `opts_tbl_start` and `opts_tbl_end` (which you
 might want to use to switch that feature off).
 
