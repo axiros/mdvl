@@ -21,6 +21,10 @@
 %%s
 ```
 
+## Debugging Parsing Errors
+
+    export mdvl_debug=1
+
 See also https://github.com/axiros/mdvl
 
 '''
@@ -30,6 +34,8 @@ __author__ = "Gunther Klessinger"
 from textwrap import fill
 from operator import setitem as set
 import re, os
+
+debug=os.environ.get('mdvl_debug')
 
 # check environ for value and cast into bools if necessary:
 _b = {'True': True, 'False': False}
@@ -109,7 +115,6 @@ class Facts(Cfg):
     header_underlining = '*' # e.g. '*-' to underline H1 with *** and H2 with ---
     opts_tbl_start   = '-'
     opts_tbl_end     = ':'
-    opts_tbl_col     = 'H2'
 
 
     def __init__(f, md, **kw):
@@ -142,9 +147,9 @@ def block_quote_status(l, g):
     return lev, _[1], _[0]
 
 
-
 h_rules_col = {'-': 'L', '_': 'H3', '*': 'H1'} # different colors
-h_rules = '---', '___', '***'
+list_markup = {'- ': ('\x03 ', 'L', '❖ '), '* ': ('\x04 ', 'H2', '▪ ')}
+h_rules     = '---', '___', '***'
 def _main(md, f):
     C, cur_colr = f.colr, 'cur_colr'
     cols = int(f.term_width)
@@ -153,6 +158,42 @@ def _main(md, f):
     cols = cols - f.indent - f.rindent
 
     g = {} # glob parsing state (current color, code blocks)
+
+
+
+    # ------------ line tools requiring facts instance, possible ctx g as well:
+    def is_opts_tbl(l, b=f.opts_tbl_start, e=f.opts_tbl_end):
+        fw = first_word(l)
+        if fw and fw.startswith(b) and fw.endswith(e):
+            return l.replace(fw, '*%s*' % fw[:-len(e)]), len(fw)
+        return l, None
+
+    def is_rule(l):
+        if not l[:3] in h_rules:
+            return
+        ll = len(l)
+        return True if l in (ll * '-', ll * '*', ll * '_') else False
+
+
+
+    # Line Tools:
+    first_word = lambda l: l.split(' ', 1)[0]
+    is_header  = lambda l: l.startswith('#')
+    is_list    = lambda l: l.lstrip()[:2] in list_markup
+    is_empty   = lambda l: l.strip() == ''
+    is_md_link = lambda l: l[0] == '[' and 'http' in l and ']' in l
+
+    is_new_block = lambda l: (
+                    is_header(l)       or
+                    is_list(l)         or
+                    is_opts_tbl(l)[1]  or
+                    is_empty(l)        or
+                    is_md_link(l)      or
+                    l[0] in ('\x02', ) or
+                    is_rule(l)
+                    )
+    # -------------------------------------------------------------------------
+
 
     md = md.strip()
 
@@ -169,23 +210,6 @@ def _main(md, f):
         md = md.replace(g[i], '\x02%s' % i)
 
     g['max_bq_depth'] = 0
-
-    # Tools:
-    first_word = lambda l: l.split(' ', 1)[0]
-    is_header  = lambda l: l.startswith('#')
-    is_list    = lambda l: l.lstrip().startswith('- ')
-    is_empty   = lambda l: l.strip() == ''
-    is_md_link = lambda l: l[0] == '[' and 'http' in l and ']' in l
-    def is_opts_tbl(l, b=f.opts_tbl_start, e=f.opts_tbl_end):
-        fw = first_word(l)
-        if fw and fw.startswith(b) and fw.endswith(e):
-            return l.replace(fw, '*%s*' % fw[:-len(e)]), len(fw)
-        return l, None
-
-    def is_rule(l):
-        if l[:3] in h_rules:
-            ll = len(l)
-            return True if l in (ll * '-', ll * '*', ll * '_') else False
 
 
     # LINESPROCESSOR:
@@ -206,7 +230,8 @@ def _main(md, f):
         if is_empty(line):
             out.append('')
             continue
-
+        if debug:
+            print('procesing: ', line)
         if is_rule(line):
             out.append(getattr(C, h_rules_col[line[0]])+ (cols * f.horiz_rule))
             continue
@@ -232,15 +257,21 @@ def _main(md, f):
         bq_lev, line, bqm = block_quote_status(line, g)
 
         src_line_nr = 0
+
+        # we derive the (static) opts table ssi for a new textblox:
         line, opts_tbl_ssi = is_opts_tbl(line)
+        # now we find all other lines belonging to that text block and
+        # concat (pop from lines) all of them:
         while ( lines and not line.endswith('  ')
                       and not is_header(line) ):
 
             src_line_nr += 1
             nl, l0 = lines[0], line.lstrip() # next line, this line
+
             bqnl = block_quote_status(nl, g)
             if bqnl[0] == bq_lev:
                 lines[0] = nl = bqnl[1] # remove redundant '>'
+
             elif bqnl[0] != bq_lev and bqnl[0] > 0:
                 break # next line different blockquote level -> new text block
 
@@ -254,6 +285,8 @@ def _main(md, f):
             #    import pdb; pdb.set_trace()
             if ssi == None:
                 if is_list(l0):
+                    # replace "- " and "* " with tags:
+                    line = list_markup[l0[:2]][0] + l0[2:]
                     ssi = 2
                 elif opts_tbl_ssi:
                     ssi = opts_tbl_ssi
@@ -262,21 +295,14 @@ def _main(md, f):
                        src_line_nr == 1 ):
                     ssi = get_subseq_light_table_indent(l0)
 
-            if ( not is_header(nl)       and
-                 not is_list(nl)         and
-                 not is_opts_tbl(nl)[1]  and
-                 not is_empty(nl)        and
-                 not is_md_link(nl)      and
-                 not nl[0] in ('\x02', ) and
-                 not is_rule(nl)
-                 ):
-                line = line.rstrip() + ' ' + lines.pop(0).lstrip()
-            else:
+            if is_new_block(nl):
                 # line is now one wrapable textblock
                 if bqnl[0]: # block quote new line
                     # adapt next line to parse:
                     lines[0] = (bqnl[2] + ' ') + lines[0]
                 break
+            else:
+                line = line.rstrip() + ' ' + lines.pop(0).lstrip()
 
         ssi = 0 if ssi is None else ssi
         # lines are now blocks
@@ -289,8 +315,9 @@ def _main(md, f):
 
 
         if is_header(line):
-            h, line = line.split(' ', 1)
-            level = len(h)
+            cont = line.lstrip('#')
+            level = len(line) - len(cont)
+            line = cont.lstrip()
 
             u = getattr(f, 'header_underlining', '')
             if len(u) >= level:
@@ -349,6 +376,10 @@ def _main(md, f):
                           '%s%s%s' % (C.CODE, code_fmt(g[i]), C.O))
     out = out.replace(apos + '\n', '') # before
     out = out.replace(apos, '')        # after
+
+    for k, v in list_markup.items():
+        out = out.replace(v[0], getattr(C, v[1]) + v[2] + C.O)
+
     out = strip_it(out, C.O)
     if not f.single_line_mode:
         out = '\n' + out + '\n'
@@ -382,6 +413,8 @@ def strip_it(out, rst):
 def main(md, **kw):
     f = Facts(md, **kw)
     #return _main(md, f), f  # we also return to the client the config
+    if debug:
+        return _main(md, f), f  # we also return to the client the config
     try:
         return _main(md, f), f  # we also return to the client the config
     except Exception as ex:
