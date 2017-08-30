@@ -474,7 +474,7 @@ def sys_main():
 
 def format_bash(dev_help, cols, lines, script, *args):
     '''
-    Formats a bash script nicely, given it follows some conventions.
+    Renders help for a bash script nicely, given it follows some conventions.
 
     These are:
 
@@ -483,9 +483,9 @@ def format_bash(dev_help, cols, lines, script, *args):
 
     2. All public functions must be in this format:
 
-        : 'doculines before...'
+        : 'optional doculines before...'
         function myfunc {
-            : 'inner doculines (params...)'
+            : 'optional inner doculines (params...)'
             <code lines>
         }
 
@@ -520,7 +520,8 @@ def format_bash(dev_help, cols, lines, script, *args):
 
     def render_func(m, single_func_doc):
         fn = m.keys()[0]
-        hf, hs = ('# `Function` **%s**', '##') if single_func_doc else ('### %s', '###')
+        hf, hs = ('# `Function` **%s**', '##') if single_func_doc else (
+                  '### %s', '###')
         nr, pre, post, code = m.values()[0]
         md = [hf % fn]
         pre and md.append(clean('\n'.join(pre), hs))
@@ -584,8 +585,6 @@ def format_bash(dev_help, cols, lines, script, *args):
                 code.append(l[i])
                 i += 1
 
-    Facts.header_numb_level_min = 2
-    Facts.header_numb_level_max = 2
     if single_func_doc:
         for m in funcs:
             md = render_func(m, single_func_doc)
@@ -594,6 +593,10 @@ def format_bash(dev_help, cols, lines, script, *args):
 
     # now the full doc. convention is to call with make_doc arg:
     Facts.no_print = True
+    Facts.header_numbering = 10
+    Facts.header_numb_level_min = 2
+    Facts.header_numb_level_max = 2
+
     full = os.popen(script.split(' ')[0] + ' make_doc').read()
     acd = '<auto_command_doc>'
     full = full.replace(acd, '## Commands\n\n' + acd)
