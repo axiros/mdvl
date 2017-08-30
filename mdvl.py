@@ -99,6 +99,7 @@ class Colors(Cfg):
 
 class Facts(Cfg):
     ''' features config '''
+    debug            = False
     term_width       = 80
     no_print         = False
     bq_mark          = '┃'
@@ -112,6 +113,8 @@ class Facts(Cfg):
     rindent          = 0
     width            = 0 # if set > 0 we set rindent accordingly
     header_numbering = 50 # -1: off, min number of lines to do autonumbering
+    header_numb_level_min= 1  # min header level to show the numbers
+    header_numb_level_max= 6  # max header level to show the numbers
     header_underlining = '*' # e.g. '*-' to underline H1 with *** and H2 with ---
     opts_tbl_start   = '-'
     opts_tbl_end     = ':'
@@ -328,7 +331,13 @@ def _main(md, f):
                 hl[level] = hl.get(level, 0) + 1
                 [set(hl, i, 0) for i in hl if i > level]
                 nr = '.'.join([str(hl[ll]) for ll in range(1, level + 1)])
-                line = nr + ' ' + line
+                if f.header_numb_level_max > level - 1:
+                    if f.header_numb_level_min > 1:
+                        nr = nr.split('.')[f.header_numb_level_min-1:]
+                        nr = '.'.join(nr)
+                    if nr:
+                        line = nr + ' ' + line
+
             g[cur_colr] = C.H(level)
 
         # WRAP:
@@ -413,7 +422,7 @@ def strip_it(out, rst):
 def main(md, **kw):
     f = Facts(md, **kw)
     #return _main(md, f), f  # we also return to the client the config
-    if debug:
+    if debug or f.debug:
         return _main(md, f), f  # we also return to the client the config
     try:
         return _main(md, f), f  # we also return to the client the config
@@ -438,6 +447,9 @@ def get_help(cols, PY2):
         md = md % ('\n'.join(mmd))
     return md
 
+# allow to adapt $COLUMNS by setting $term_width:
+get_cols = lambda: env('term_width') or os.popen('tput cols').read().strip()
+
 def sys_main():
     import sys
     PY2 = sys.version_info[0] == 2
@@ -445,8 +457,7 @@ def sys_main():
         reload(sys); sys.setdefaultencoding('utf-8')
     import os
     from stat import S_ISFIFO
-    # allow to adapt $COLUMNS by setting $term_width:
-    cols = env('term_width') or os.popen('tput cols').read().strip()
+    cols = get_cols()
     if S_ISFIFO(os.fstat(0).st_mode): # pipe mode
         md = sys.stdin.read()
     else:
@@ -459,6 +470,161 @@ def sys_main():
                 md = fd.read()
     main(md, term_width=cols)
 
+# ==============================================  Script Formatters ===========
+
+def format_bash(dev_help, cols, lines, script, *args):
+    '''
+    Formats a bash script nicely, given it follows some conventions.
+
+    These are:
+
+    1. An `md_doc` function is required, returning general docu as markdown,
+    containing the string "<auto_command_doc>"
+
+    2. All public functions must be in this format:
+
+        : 'doculines before...'
+        function myfunc {
+            : 'inner doculines (params...)'
+            <code lines>
+        }
+
+    3. In the command parsing part then this: `show_help $sourced $0 $*`
+    with that function elsewhere in your tools:
+
+        show_help () {
+            local sourced=$1; shift
+            local dev_help=false
+            test "${2:-}x" == "make_docx" && { md_doc; exit 0; }
+            test "${@: -1}" == "-hh" 2>/dev/null && dev_help=true || {
+                test "${@: -1}" == "-h" 2>/dev/null || return 0
+            }
+            local cols=`stty size | cut -d ' ' -f 2`
+            mdvl -f $dev_help $cols "$*"; $sourced && return 1 || exit
+        }
+
+    '''
+    dev_help = True if str(dev_help) in ('True', 'true', '1') else False
+    single_func_doc=False; l = lines; funcs = []
+    start = ": '"
+    is_func     = lambda l: l.startswith('function ')
+    is_cmt_end  = lambda l: l.rstrip().endswith("'")
+    is_cmt_start= lambda l: l.lstrip().startswith(start)
+
+    def clean(s, head_sub):
+        s = s.strip()
+        s = s[len(start):] if s.startswith(start) else s
+        s = s[:-1] if s.endswith("'") else s
+        s = (('\n' + s).replace('\n#', '\n%s#' % head_sub))[1:]
+        return s
+
+    def render_func(m, single_func_doc):
+        fn = m.keys()[0]
+        hf, hs = ('# `Function` **%s**', '##') if single_func_doc else ('### %s', '###')
+        nr, pre, post, code = m.values()[0]
+        md = [hf % fn]
+        pre and md.append(clean('\n'.join(pre), hs))
+        post and md.append(clean('\n'.join(post), hs))
+        if code:
+            code = '\n'.join(code)
+            if post or pre:
+                md.append('')
+            md.append(code)
+            md.extend(['---', ''])
+        md = '\n'.join(md)
+        return md
+
+    fm = {}
+    for i in range(len(l)):
+        if is_func(l[i]):
+            fn = (l[i] + ' ').split(' ', 2)[1]
+            funcs.append({fn: [i, [], [], []]})
+            fm[fn] = len(funcs) - 1
+
+    if not '-h' in args[0]:
+        match = args[0]
+        f = []
+        for m in funcs:
+            if match in m.keys()[0]:
+                f.append(m)
+        if f:
+            funcs = f
+            single_func_doc = True
+
+    for m in funcs:
+        nr, pre, post, code = m.values()[0]
+        # pre:
+        if is_cmt_end(l[nr-1]):
+            i = nr
+            while True:
+                i = i -1
+                pre.insert(0, l[i])
+                if is_cmt_start(l[i]):
+                    break
+                if i > 1 and l[i-1].rstrip().endswith('}'):
+                    pre = [] # err
+                    break
+
+        # post:
+        i = nr
+        if is_cmt_start(l[nr + 1]):
+            while True:
+                i += 1
+                post.append(l[i][4:])
+                if is_cmt_end(l[i]) and not l[i].strip() == start:
+                    break
+                if l[i+1].rstrip().endswith('}'):
+                    post = []; i = nr # err
+                    break
+        if dev_help:
+            i += 1
+            while True:
+                if l[i].strip() == '}':
+                    break
+                code.append(l[i])
+                i += 1
+
+    Facts.header_numb_level_min = 2
+    Facts.header_numb_level_max = 2
+    if single_func_doc:
+        for m in funcs:
+            md = render_func(m, single_func_doc)
+            main(md, term_width=cols)
+        return
+
+    # now the full doc. convention is to call with make_doc arg:
+    Facts.no_print = True
+    full = os.popen(script.split(' ')[0] + ' make_doc').read()
+    acd = '<auto_command_doc>'
+    full = full.replace(acd, '## Commands\n\n' + acd)
+    md = main(full, term_width=cols)[0]
+
+    Facts.header_numbering = -1
+    rfuncs, sep = '', '\n\n'
+    if dev_help:
+        sep = ''
+    for m in funcs:
+        rfuncs = rfuncs + sep + render_func(m, single_func_doc)
+    mdf = main(rfuncs, term_width=cols)[0]
+    print(md.replace(acd, mdf))
+
+
+
+
+def format_file(dev_help, cols, fn, *args):
+    if not os.path.exists(fn):
+        raise Exception('Not found' + fn)
+    with open(fn) as fd:
+        lines = fd.read().splitlines()
+    if 'bash' in lines[0]:
+        format_bash(dev_help, cols, lines, fn, *args)
+    else:
+        raise Exception('Not supported format')
+
 if __name__ == '__main__':
-    sys_main()
+    import os, sys
+    if len(sys.argv) > 1 and sys.argv[1] == '-f':
+        format_file(*sys.argv[2:])
+    else:
+        sys_main()
 
