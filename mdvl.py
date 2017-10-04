@@ -61,7 +61,13 @@ class Cfg:
         [setattr(self, k, self.get_val(k, v, kw)) for k, v in self._parms]
 
     def get_val(self, k, dflt, kw):
-        return type(dflt)(kw.get(k, env(k, dflt)))
+        try:
+            return type(dflt)(kw.get(k, env(k, dflt)))
+        except Exception as ex:
+            # show reason clearer:
+            raise Exception(
+                    'Could not cast type %s - have %s %s %s %s' % (
+                        type(dflt), k, dflt, kw, env(k, dflt)))
 
 
 class Colors(Cfg):
@@ -109,7 +115,7 @@ class Facts(Cfg):
     horiz_rule       = '─'
     single_line_mode = False
     # left and right global indents:
-    indent           = 1
+    indent           = 0
     rindent          = 0
     width            = 0 # if set > 0 we set rindent accordingly
     header_numbering = 50 # -1: off, min number of lines to do autonumbering
@@ -448,7 +454,8 @@ def get_help(cols, PY2):
     return md
 
 # allow to adapt $COLUMNS by setting $term_width:
-get_cols = lambda: env('term_width') or os.popen('tput cols').read().strip()
+get_cols = lambda: (env('term_width')                      or
+          os.popen('tput cols 2>/dev/null').read().strip() or '80' )
 
 def sys_main():
     import sys
@@ -457,7 +464,12 @@ def sys_main():
         reload(sys); sys.setdefaultencoding('utf-8')
     import os
     from stat import S_ISFIFO
-    cols = get_cols()
+    err = None
+    try:
+        cols = get_cols()
+    except Exception as ex:
+        err = str(ex)
+        cols = 80
     if S_ISFIFO(os.fstat(0).st_mode): # pipe mode
         md = sys.stdin.read()
     else:
@@ -468,7 +480,11 @@ def sys_main():
         if os.path.exists(md):
             with open(md) as fd:
                 md = fd.read()
-    main(md, term_width=cols)
+    if err:
+        print(err)
+        print md
+    else:
+        main(md, term_width=cols)
 
 # ==============================================  Script Formatters ===========
 
@@ -585,10 +601,12 @@ def format_bash(dev_help, cols, lines, script, *args):
                 code.append(l[i])
                 i += 1
 
+    Facts.indent = 0
     if single_func_doc:
         for m in funcs:
             md = render_func(m, single_func_doc)
             main(md, term_width=cols)
+            print
         return
 
     # now the full doc. convention is to call with make_doc arg:
