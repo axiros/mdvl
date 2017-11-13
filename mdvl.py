@@ -209,7 +209,7 @@ def _main(md, f):
     # FENCED CODE BLOCKS:
     # we take them out before all parsing,see http://stackoverflow.com/a/587518
     apo, apos = chr(96), chr(96) * 3 # chr 96 is backtick.
-    _ = r'^({apos})\n((?:[^{apo}]+\n{apo}{apo})+)'.format(apos=apos, apo=apo)
+    _ = r'^({apos}[^\n]+)\n((?:[^{apo}]+\n{apo}{apo})+)'.format(apos=apos, apo=apo)
     fncd = re.compile(_, re.MULTILINE) # finds fenced code
     md = md.replace('\n~~~', apos) # alternative markup for fenced
     # remembering the blocks by their occurance number (len(g))
