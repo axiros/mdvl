@@ -470,7 +470,7 @@ def sys_main():
     except Exception as ex:
         err = str(ex)
         cols = 80
-    if S_ISFIFO(os.fstat(0).st_mode): # pipe mode
+    if not os.isatty(0): # pipe mode
         md = sys.stdin.read()
     else:
         if not len(sys.argv) > 1 or '-h' in sys.argv:
