@@ -482,7 +482,7 @@ def sys_main():
                 md = fd.read()
     if err:
         print(err)
-        print md
+        print(md)
     else:
         main(md, term_width=cols)
 
